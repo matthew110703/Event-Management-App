@@ -8,8 +8,9 @@ export const register = async (req, res) => {
   const { name, email, password, isGuest = false } = req.body;
 
   try {
-    // Validation
+    // Guest user
     if (isGuest) {
+      // Validation
       if (!name) {
         return res.status(400).json({ error: "Please provide a name" });
       }
@@ -21,9 +22,12 @@ export const register = async (req, res) => {
         .json({ success: "Guest user created successfully", user });
     }
 
+    // Registered user
     // Validation
     if (!name || !email || !password) {
-      return res.status(400).json({ error: "Please provide all fields" });
+      return res
+        .status(400)
+        .json({ error: "Please provide all fields. [name, email & password]" });
     }
 
     // Check if user exists
