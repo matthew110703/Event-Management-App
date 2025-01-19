@@ -4,9 +4,8 @@ import { compare, hash } from "bcrypt";
 import User from "../models/userModel.js";
 
 /** @description Register a New User */
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   const { name, email, password, isGuest = false } = req.body;
-
   try {
     // Guest user
     if (isGuest) {
@@ -44,12 +43,12 @@ export const register = async (req, res) => {
     // Response
     res.status(201).json({ success: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
 /** @description Login a User */
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -76,6 +75,6 @@ export const login = async (req, res) => {
     // Response
     res.status(200).json({ success: "User logged in successfully", token });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
