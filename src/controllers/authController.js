@@ -11,7 +11,10 @@ export const register = async (req, res, next) => {
     if (isGuest) {
       // Validation
       if (!name) {
-        return res.status(400).json({ error: "Please provide a name" });
+        throw {
+          statusCode: 400,
+          message: "Please provide a name for the guest user",
+        };
       }
 
       // Create guest user
@@ -24,15 +27,23 @@ export const register = async (req, res, next) => {
     // Registered user
     // Validation
     if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Please provide all fields. [name, email & password]" });
+      {
+        throw {
+          statusCode: 400,
+          message:
+            "Please provide all fields. [name, email & password] are required",
+        };
+      }
     }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
-    if (userExists)
-      return res.status(400).json({ error: "User already exists" });
+    if (userExists) {
+      throw {
+        statusCode: 400,
+        message: "User already exists",
+      };
+    }
 
     // Hash password
     const hashedPassword = await hash(password, 10);
@@ -54,19 +65,28 @@ export const login = async (req, res, next) => {
   try {
     // Validation
     if (!email || !password) {
-      return res.status(400).json({ error: "Please provide all fields" });
+      throw {
+        statusCode: 400,
+        message: "Please provide all fields. [email & password] are required",
+      };
     }
 
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: "User does not exist" });
+      throw {
+        statusCode: 400,
+        message: "Invalid credentials",
+      };
     }
 
     // Check if password is correct
     const isMatch = compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      throw {
+        statusCode: 400,
+        message: "Invalid credentials",
+      };
     }
 
     // Create token
