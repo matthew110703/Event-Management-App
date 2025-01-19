@@ -14,4 +14,8 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRoutes); // Auth Routes
 
+// Error Handler
+import errorHandler from "./middleware/errorHandler.js";
+app.use(errorHandler);
+
 export default app;
