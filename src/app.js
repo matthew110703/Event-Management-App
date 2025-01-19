@@ -9,10 +9,12 @@ app.use(express.json());
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 app.use("/api/auth", authRoutes); // Auth Routes
+app.use("/api/events", eventRoutes); // Event Routes
 
 // Error Handler
 import errorHandler from "./middleware/errorHandler.js";
