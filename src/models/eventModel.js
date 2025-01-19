@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const categories = [
   "Workshop",
   "Seminar",
+  "Webinar",
+  "Training",
   "Networking",
   "Conference",
   "Cultural",
@@ -10,7 +12,7 @@ const categories = [
   "Hackathon",
   "Concert",
   "Festival",
-  "Sports Meet",
+  "Sports",
   "Exhibition",
   "Others",
 ];
@@ -37,6 +39,11 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: [true, "Event type is required"],
       enum: ["public", "private"],
+    },
+    category: {
+      type: String,
+      required: [true, "Event category is required"],
+      enum: categories,
     },
     attendees: {
       type: [mongoose.Schema.Types.ObjectId],
