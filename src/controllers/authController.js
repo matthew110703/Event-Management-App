@@ -1,7 +1,7 @@
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { compare, hash } from "bcrypt";
 
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 
 /** @description Register a New User */
 export const register = async (req, res) => {
@@ -67,7 +67,7 @@ export const login = async (req, res) => {
     }
 
     // Create token
-    const token = sign({ _id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
 
     // Response
     res.status(200).json({ success: "User logged in successfully", token });
