@@ -14,6 +14,12 @@ const categories = [
   "Festival",
   "Sports",
   "Exhibition",
+  "Charity",
+  "Fundraiser",
+  "Party",
+  "Gathering",
+  "Competition",
+  "Entertainment",
   "Others",
 ];
 
