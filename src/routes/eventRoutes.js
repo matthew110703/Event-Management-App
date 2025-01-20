@@ -10,6 +10,7 @@ import {
   getUpcomingEvents,
   getUserEvents,
   getPastEvents,
+  getJoinedEvents,
 } from "../controllers/eventController.js";
 
 // Middleware
@@ -22,6 +23,7 @@ eventRoutes.get("/", getEvents);
 eventRoutes.get("/upcoming", getUpcomingEvents);
 eventRoutes.get("/past", getPastEvents);
 eventRoutes.get("/user", authenticate, getUserEvents);
+eventRoutes.get("/joined", authenticate, getJoinedEvents);
 eventRoutes.post("/", authenticate, createEvent);
 
 eventRoutes
