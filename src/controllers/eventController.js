@@ -226,3 +226,21 @@ export const getPastEvents = async (req, res, next) => {
     next(error);
   }
 };
+
+/** @description Get Events that user has Joined */
+export const getJoinedEvents = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    // Get Events
+    const events = await Event.find({ attendees: userId }).populate(
+      "host",
+      "name email"
+    );
+
+    // Response
+    res.status(200).json(events);
+  } catch (error) {
+    next(error);
+  }
+};
