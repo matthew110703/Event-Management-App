@@ -5,25 +5,8 @@ import User from "../models/userModel.js";
 
 /** @description Register a New User */
 export const register = async (req, res, next) => {
-  const { name, email, password, isGuest = false } = req.body;
+  const { name, email, password } = req.body;
   try {
-    // Guest user
-    if (isGuest) {
-      // Validation
-      if (!name) {
-        throw {
-          statusCode: 400,
-          message: "Please provide a name for the guest user",
-        };
-      }
-
-      // Create guest user
-      const user = await User.create({ name, isGuest });
-      return res
-        .status(201)
-        .json({ success: "Guest user created successfully", user });
-    }
-
     // Registered user
     // Validation
     if (!name || !email || !password) {
