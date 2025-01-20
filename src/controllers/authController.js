@@ -64,11 +64,11 @@ export const login = async (req, res, next) => {
     }
 
     // Check if password is correct
-    const isMatch = compare(password, user.password);
+    const isMatch = await compare(password, user.password);
     if (!isMatch) {
       throw {
         statusCode: 400,
-        message: "Invalid credentials",
+        message: "Invalid password",
       };
     }
 
