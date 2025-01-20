@@ -170,13 +170,13 @@ export const getUpcomingEvents = async (req, res, next) => {
     let query = {};
     if (category) query.category = { $regex: category, $options: "i" };
     if (name) query.name = { $regex: name, $options: "i" };
-
     if (type) query.type = type;
 
     // Get Events
     const events = await Event.find(query)
       .where("date")
       .gte(new Date())
+      .sort({ date: 1 })
       .populate("host", "name email");
 
     // Response
@@ -218,6 +218,7 @@ export const getPastEvents = async (req, res, next) => {
     const events = await Event.find(query)
       .where("date")
       .lt(new Date())
+      .sort({ date: -1 })
       .populate("host", "name email");
 
     // Response
