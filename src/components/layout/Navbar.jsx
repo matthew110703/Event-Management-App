@@ -29,12 +29,12 @@ const Navbar = () => {
             href={link.href}
           />
         ))}
-        <Link
-          to="/login"
+        <button
+          type="button"
           className="navbar-item btn btn-info btn-sm text-white"
         >
           Logout
-        </Link>
+        </button>
       </div>
 
       {/* Dropdown menu for mobile */}
