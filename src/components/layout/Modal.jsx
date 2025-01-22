@@ -8,8 +8,8 @@ const Portal = ({ children }) => {
 const Modal = ({ children }) => {
   return (
     <Portal>
-      <div className="absolute inset-0 m-0 flex items-center justify-center bg-black bg-opacity-50 p-0">
-        <main>{children}</main>
+      <div className="absolute inset-0 m-0 flex w-full items-center justify-center bg-black bg-opacity-50 p-0">
+        <main className="container">{children}</main>
       </div>
     </Portal>
   );
