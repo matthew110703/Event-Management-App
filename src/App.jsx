@@ -7,6 +7,7 @@ import {
   Dashboard,
   MyEvents,
   EventDetail,
+  JoinEvent,
   NotFound,
 } from "./pages";
 
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/my-events" element={<MyEvents />} />
         <Route path="/event/:id" element={<EventDetail />} />
+        <Route path="/join-event" element={<JoinEvent />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
