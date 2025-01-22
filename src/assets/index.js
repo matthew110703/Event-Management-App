@@ -13,6 +13,9 @@ import privateIcon from "./icons/private.svg";
 import filterIcon from "./icons/filter.svg";
 import closeIcon from "./icons/close.svg";
 import clearIcon from "./icons/clear.svg";
+import shareIcon from "./icons/share.svg";
+import editIcon from "./icons/edit.svg";
+import sendIcon from "./icons/send.svg";
 
 export {
   logo,
@@ -30,4 +33,7 @@ export {
   filterIcon,
   closeIcon,
   clearIcon,
+  shareIcon,
+  editIcon,
+  sendIcon,
 };
