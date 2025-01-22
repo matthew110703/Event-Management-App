@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { logo, heartIcon, menuIcon, homeIcon } from "../../assets";
+import { logo, heartIcon, menuIcon, homeIcon, privateIcon } from "../../assets";
 import NavLink from "../ui/NavLink";
 
 const Navbar = () => {
@@ -18,7 +18,8 @@ const Navbar = () => {
 
       <div className="navbar-end hidden gap-6 text-sm *:font-semibold md:flex">
         <NavLink icon={homeIcon} title="Home" />
-        <NavLink icon={heartIcon} title="My Events" />
+        <NavLink href="/lol" icon={heartIcon} title="My Events" />
+        <NavLink icon={privateIcon} title="Join Private" />
         <Link
           to="/login"
           className="navbar-item btn btn-info btn-sm text-white"
@@ -44,6 +45,9 @@ const Navbar = () => {
 
             <li>
               <NavLink icon={heartIcon} title="My Events" />
+            </li>
+            <li>
+              <NavLink icon={privateIcon} title="Join Private" />
             </li>
             <li>
               <Link
