@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 
-import { logo, heartIcon, menuIcon, homeIcon, privateIcon } from "../../assets";
+// UI
+import { logo, menuIcon } from "../../assets";
 import NavLink from "../ui/NavLink";
+
+// Constants
+import { navLinks } from "../../lib/constants";
 
 const Navbar = () => {
   return (
@@ -17,9 +21,14 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-end hidden gap-6 text-sm *:font-semibold md:flex">
-        <NavLink icon={homeIcon} title="Home" />
-        <NavLink href="/lol" icon={heartIcon} title="My Events" />
-        <NavLink icon={privateIcon} title="Join Private" />
+        {navLinks.map((link) => (
+          <NavLink
+            key={link.label}
+            icon={link.icon}
+            title={link.label}
+            href={link.href}
+          />
+        ))}
         <Link
           to="/login"
           className="navbar-item btn btn-info btn-sm text-white"
@@ -39,16 +48,16 @@ const Navbar = () => {
             tabIndex={0}
             className="dropdown-content z-[1] mt-14 w-52 space-y-2 text-nowrap rounded-lg bg-white px-4 py-2 shadow *:text-sm"
           >
-            <li>
-              <NavLink icon={homeIcon} title="Home" />
-            </li>
-
-            <li>
-              <NavLink icon={heartIcon} title="My Events" />
-            </li>
-            <li>
-              <NavLink icon={privateIcon} title="Join Private" />
-            </li>
+            {navLinks.map((link) => (
+              <li key={link.label}>
+                <NavLink
+                  icon={link.icon}
+                  title={link.label}
+                  href={link.href}
+                  className="block"
+                />
+              </li>
+            ))}
             <li>
               <Link
                 to="/login"
