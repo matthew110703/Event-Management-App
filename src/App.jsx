@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 
 // Pages
 import {
@@ -11,9 +12,25 @@ import {
   NotFound,
 } from "./pages";
 
+// Redux
+import { useSelector } from "react-redux";
+
+// Toast
+import { toast, ToastContainer } from "react-toastify";
+
 const App = () => {
+  // Redux
+  const alert = useSelector((state) => state.alert);
+
+  useEffect(() => {
+    if (alert.message) {
+      toast[alert.type](alert.message);
+    }
+  }, [alert]);
+
   return (
     <Router>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
