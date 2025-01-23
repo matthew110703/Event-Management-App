@@ -20,5 +20,5 @@ import { homeIcon, heartIcon, privateIcon } from "../assets";
 export const navLinks = [
   { label: "Home", icon: homeIcon, href: "/dashboard" },
   { label: "My Events", icon: heartIcon, href: "/my-events" },
-  { label: "Join Private", icon: privateIcon, href: "/join-private" },
+  { label: "Join Event", icon: privateIcon, href: "/join-event" },
 ];
