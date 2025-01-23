@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 // Ui
-import { Container, EventCard } from "../components";
+import { Container, EventCard, Modal, EventForm } from "../components";
 
 const MyEvents = () => {
   const [isActiveTab, setIsActiveTab] = useState("My Events");
+  const [openForm, setOpenForm] = useState(false);
 
   return (
     <Container>
@@ -30,7 +31,10 @@ const MyEvents = () => {
         </div>
 
         {/* Action  */}
-        <button className="btn btn-info btn-sm text-white">
+        <button
+          className="btn btn-info btn-sm text-white"
+          onClick={() => setOpenForm(true)}
+        >
           + Create Event
         </button>
       </div>
@@ -77,6 +81,13 @@ const MyEvents = () => {
           attendees={"Attendees"}
         />
       </section>
+
+      {/* Modal  */}
+      {openForm && (
+        <Modal>
+          <EventForm onClose={() => setOpenForm(!openForm)} />
+        </Modal>
+      )}
     </Container>
   );
 };
