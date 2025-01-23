@@ -1,7 +1,71 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+// UI
 import { banner, profileIcon } from "../assets";
 
 const Register = () => {
+  const navigate = useNavigate();
+
+  // Form values
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Validation
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    } else if (form.password.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
+
+    // API Call
+    console.log(form);
+
+    try {
+      const res = await fetch("api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Account created successfully");
+        navigate("/");
+      } else {
+        alert(data.error);
+      }
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 md:flex-row md:gap-8 lg:gap-8">
       {/* Banner  */}
@@ -19,7 +83,10 @@ const Register = () => {
       </section>
 
       {/* Form  */}
-      <form className="h-auto w-full space-y-4 rounded-lg p-8 shadow-md md:w-[420px] md:min-w-[300px]">
+      <form
+        onSubmit={handleSubmit}
+        className="h-auto w-full space-y-4 rounded-lg p-8 shadow-md md:w-[420px] md:min-w-[300px]"
+      >
         <p className="text-center text-xs text-gray-500">
           Enter your details to create an account
         </p>
@@ -34,7 +101,15 @@ const Register = () => {
           >
             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
           </svg>
-          <input type="text" className="grow" placeholder="Name" />
+          <input
+            type="text"
+            className="grow"
+            placeholder="Name"
+            name="name"
+            required
+            value={form.name}
+            onChange={handleChange}
+          />
         </label>
 
         {/* Email  */}
@@ -48,7 +123,15 @@ const Register = () => {
             <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
             <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
           </svg>
-          <input type="text" className="grow" placeholder="Email" />
+          <input
+            type="text"
+            className="grow"
+            placeholder="Email"
+            name="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+          />
         </label>
 
         {/* Password  */}
@@ -69,6 +152,10 @@ const Register = () => {
             type="password"
             className="grow"
             placeholder="Create Password"
+            name="password"
+            required
+            value={form.password}
+            onChange={handleChange}
           />
         </label>
 
@@ -90,18 +177,30 @@ const Register = () => {
             type="password"
             className="grow"
             placeholder="Confirm Password"
+            name="confirmPassword"
+            required
+            value={form.confirmPassword}
+            onChange={handleChange}
           />
         </label>
 
         {/* Submit  */}
-        <button type="submit" className="btn btn-info w-full text-white">
-          Login
+        <button
+          type="submit"
+          className="btn btn-info w-full text-white"
+          disabled={loading}
+        >
+          {loading ? (
+            <span className="loading loading-dots loading-xs"></span>
+          ) : (
+            "Login"
+          )}
         </button>
 
         <div>
           <p className="text-center text-sm">
             Already have an account? &nbsp;
-            <Link to="#" className="link link-info">
+            <Link to="/" className="link link-info">
               Login
             </Link>
           </p>
