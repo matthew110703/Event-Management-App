@@ -4,10 +4,16 @@ import "./index.css";
 import App from "./App.jsx";
 import ErrorBoundary from "./pages/ErrorBoundary.jsx";
 
+// Redux
+import store from "./store";
+import { Provider } from "react-redux";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <Provider store={store}>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </Provider>
   </StrictMode>,
 );
