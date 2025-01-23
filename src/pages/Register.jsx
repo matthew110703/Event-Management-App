@@ -4,8 +4,16 @@ import { useState } from "react";
 // UI
 import { banner, profileIcon } from "../assets";
 
+// Redux
+import { useDispatch } from "react-redux";
+import { showAlert } from "../store/alertSlice";
+import { setGuest } from "../store/authSlice";
+
 const Register = () => {
   const navigate = useNavigate();
+
+  // Redux
+  const dispatch = useDispatch();
 
   // Form values
   const [form, setForm] = useState({
@@ -27,21 +35,24 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     // Validation
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      dispatch(showAlert({ message: "Passwords do not match", type: "error" }));
       return;
     } else if (form.password.length < 6) {
-      alert("Password must be at least 6 characters long");
+      dispatch(
+        showAlert({
+          message: "Password must be at least 6 characters",
+          type: "error",
+        }),
+      );
       return;
     }
 
     // API Call
-    console.log(form);
-
     try {
+      setLoading(true);
       const res = await fetch("api/auth/register", {
         method: "POST",
         headers: {
@@ -50,20 +61,30 @@ const Register = () => {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const { success, error } = await res.json();
 
-      if (data.success) {
-        alert("Account created successfully");
+      if (success) {
+        dispatch(showAlert({ message: success, type: "success" }));
         navigate("/");
       } else {
-        alert(data.error);
+        dispatch(showAlert({ message: error, type: "error" }));
       }
-      console.log(data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuest = () => {
+    dispatch(setGuest());
+    dispatch(
+      showAlert({
+        message: "Logged in as a guest.",
+        type: "info",
+      }),
+    );
+    navigate("/dashboard");
   };
 
   return (
@@ -193,7 +214,7 @@ const Register = () => {
           {loading ? (
             <span className="loading loading-dots loading-xs"></span>
           ) : (
-            "Login"
+            "Register"
           )}
         </button>
 
@@ -211,6 +232,7 @@ const Register = () => {
         <button
           type="button"
           className="btn btn-neutral mr-auto flex w-full items-center gap-1"
+          onClick={handleGuest}
         >
           <span>
             <img src={profileIcon} alt="guest" width={24} />
