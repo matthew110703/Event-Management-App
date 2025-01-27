@@ -1,9 +1,16 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
 
 const app = express(); // App
 
 // Middlewares
+// CORS
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 
