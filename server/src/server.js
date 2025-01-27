@@ -10,6 +10,8 @@ dotenv.config();
 app.use(
   cors({
     origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Explicitly allow methods including OPTIONS
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow custom headers
   })
 );
 
