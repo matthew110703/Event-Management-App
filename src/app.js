@@ -8,11 +8,23 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 // Routes
+import { categories } from "./models/eventModel.js";
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get("/api", (req, res) => {
+  res.send("Welcome to Event Management API");
+});
+app.get("/api/meta-data", (req, res) => {
+  res.json({
+    title: "Event Management API",
+    description: "API for managing events",
+    version: "1.0.0",
+    event: {
+      categories,
+      types: ["public", "private"],
+    },
+  });
 });
 app.use("/api/auth", authRoutes); // Auth Routes
 app.use("/api/events", eventRoutes); // Event Routes

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const categories = [
+export const categories = [
+  "Tech",
   "Workshop",
   "Seminar",
   "Webinar",
@@ -62,6 +63,8 @@ const eventSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+eventSchema.index({ date: 1, category: 1, name: 1, location: 1 });
 
 const Event = mongoose.model("Event", eventSchema);
 

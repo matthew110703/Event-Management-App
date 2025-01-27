@@ -16,7 +16,12 @@ const authenticate = async (req, res, next) => {
     }
 
     // Verify Token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      throw { statusCode: 401, message: "Unauthorized. Invalid token." };
+    }
 
     if (decoded) {
       // Find User
@@ -34,7 +39,10 @@ const authenticate = async (req, res, next) => {
       // Next
       next();
     } else {
-      throw { statusCode: 401, message: "Unauthorized. Invalid token." };
+      throw {
+        statusCode: 401,
+        message: "Unauthorized. Invalid token. Unrecognized Error.",
+      };
     }
   } catch (error) {
     next(error);

@@ -35,16 +35,15 @@ export const eventUpdates = (io) => {
      * @param {Socket} socket
      */
     (socket) => {
+      console.log("User Connected");
+
       // Join Event
       socket.on("join", async (payload) => {
-        const { eventId, userId } = payload;
+        const { eventId, username } = payload;
 
         // Validation
-        if (
-          !Types.ObjectId.isValid(eventId) ||
-          !Types.ObjectId.isValid(userId)
-        ) {
-          return socket.emit("alert", "Invalid Event or User ID");
+        if (!Types.ObjectId.isValid(eventId)) {
+          return socket.emit("alert", "Invalid Event ID");
         }
 
         // Check if event and user exists
@@ -53,10 +52,10 @@ export const eventUpdates = (io) => {
         socket.join(eventId);
 
         // Alert User
-        socket.emit("alert", `You have joined the event: ${eventId}`);
+        socket.emit("alert", `You have joined the event.`);
 
         // Alert Event Participants
-        io.to(eventId).emit("alert-room", `${userId} has joined the event`);
+        io.to(eventId).emit("alert-room", `${username} has joined the event`);
 
         // Online Users
         const sockets = await io.in(eventId).fetchSockets();
@@ -64,7 +63,7 @@ export const eventUpdates = (io) => {
 
         // Public Chat
         socket.on("message", (message) => {
-          io.to(eventId).emit("message", { message, userId });
+          io.to(eventId).emit("message", { message, username });
         });
 
         // Leave Event
@@ -72,14 +71,14 @@ export const eventUpdates = (io) => {
           socket.leave(eventId);
           io.to(eventId).emit(
             "alert-room",
-            `User: ${userId} has left the event`
+            `User: ${username} has left the event`
           );
           socket.disconnect();
         });
 
         // Host Updates
         socket.on("updates", async (update) => {
-          io.to(eventId).emit("updates", { update, userId });
+          io.to(eventId).emit("updates", { update, username });
         });
         // Close Event
         socket.on("close", () => {

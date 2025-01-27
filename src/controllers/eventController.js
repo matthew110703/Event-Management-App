@@ -5,10 +5,10 @@ import Event from "../models/eventModel.js";
 
 /** @description Get All Events */
 export const getEvents = async (req, res, next) => {
-  const { name, category, date, type, from, to } = req.query;
+  const { name, category, date, type, from, to, userId } = req.query;
 
   try {
-    // Filter Query
+    // Build Query Object
     let query = {};
     if (name) query.name = { $regex: name, $options: "i" };
     if (category) query.category = { $regex: category, $options: "i" };
@@ -16,14 +16,21 @@ export const getEvents = async (req, res, next) => {
     if (from && to) {
       const start = new Date(from);
       const end = new Date(to);
-      query.$and = [{ date: { $gte: start } }, { date: { $lte: end } }];
+      query.date = { $gte: start, $lte: end };
     }
     if (type) query.type = type;
 
-    // Get Events
+    if (userId && Types.ObjectId.isValid(userId)) {
+      query.$nor = [
+        { host: new Types.ObjectId(userId) }, // Exclude events hosted by the user
+        { attendees: new Types.ObjectId(userId) }, // Exclude events attended by the user
+      ];
+    }
+
+    // Fetch Events
     const events = await Event.find(query).populate("host", "name email");
 
-    // Response
+    // Send Response
     res.status(200).json(events);
   } catch (error) {
     next(error);
@@ -163,7 +170,7 @@ export const deleteEvent = async (req, res, next) => {
 
 /** @description Get all Upcoming Events */
 export const getUpcomingEvents = async (req, res, next) => {
-  const { category, type, name } = req.query;
+  const { category, type, name, userId } = req.query;
 
   try {
     // Filter Query
@@ -171,6 +178,13 @@ export const getUpcomingEvents = async (req, res, next) => {
     if (category) query.category = { $regex: category, $options: "i" };
     if (name) query.name = { $regex: name, $options: "i" };
     if (type) query.type = type;
+
+    if (userId && Types.ObjectId.isValid(userId)) {
+      query.$nor = [
+        { host: new Types.ObjectId(userId) }, // Exclude events hosted by the user
+        { attendees: new Types.ObjectId(userId) }, // Exclude events attended by the user
+      ];
+    }
 
     // Get Events
     const events = await Event.find(query)
