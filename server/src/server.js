@@ -7,7 +7,12 @@ import cors from "cors";
 dotenv.config();
 
 // CORS
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 // Database Connection
 dbConnect();
