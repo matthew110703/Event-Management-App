@@ -18,6 +18,7 @@ const authSlice = createSlice({
       const { user, token } = action.payload;
       state.user = user;
       state.token = token;
+      state.isGuest = false;
     },
     removeUser: (state) => {
       state.user = {
@@ -26,6 +27,8 @@ const authSlice = createSlice({
         name: null,
       };
       state.token = null;
+      state.isGuest = false;
+      localStorage.clear();
     },
     setGuest: (state) => {
       state.isGuest = true;

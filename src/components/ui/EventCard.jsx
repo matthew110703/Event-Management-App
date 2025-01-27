@@ -10,6 +10,10 @@ import {
   groupIcon,
 } from "../../assets";
 
+// Redux
+import { useSelector, useDispatch } from "react-redux";
+import { showAlert } from "../../store/alertSlice";
+
 const EventCard = ({
   name,
   category,
@@ -20,21 +24,34 @@ const EventCard = ({
   attendees,
   href,
   className,
+  isJoined,
+  isHost,
 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isGuest } = useSelector((state) => state.auth);
   const handleJoin = () => {
+    if (isGuest) {
+      dispatch(
+        showAlert({
+          message: "Please login to join the event",
+          type: "info",
+        }),
+      );
+      return navigate("/");
+    }
     navigate(href);
   };
   const isEnded = date < new Date().toISOString();
 
   return (
     <article
-      className={`flex min-w-[300px] max-w-[600px] flex-col gap-2 rounded-lg border p-4 shadow-md transition duration-300 ease-in-out hover:shadow-xl md:gap-4 ${className}`}
+      className={`flex min-w-[300px] max-w-[600px] flex-col justify-between gap-2 rounded-lg border p-4 shadow-md transition duration-300 ease-in-out hover:shadow-xl md:gap-4 ${className}`}
       onClick={handleJoin}
     >
       <header>
         <div className="flex items-center justify-between">
-          <h3 className="text-ellipsis text-wrap text-xl font-semibold md:text-2xl">
+          <h3 className="text-ellipsis text-wrap text-lg font-semibold md:text-xl">
             {name}
           </h3>
           <p className="rounded-full bg-info bg-opacity-20 px-2 py-1 text-xs font-semibold uppercase text-info">
@@ -44,7 +61,7 @@ const EventCard = ({
       </header>
 
       <main className="rounded-lg bg-gray-200 p-2">
-        <p className="line-clamp-3 select-none text-ellipsis text-xs font-light md:line-clamp-4 md:text-sm">
+        <p className="line-clamp-3 select-none text-ellipsis text-xs font-light md:text-sm">
           {description}
         </p>
       </main>
@@ -79,20 +96,24 @@ const EventCard = ({
               {attendees <= 0
                 ? isEnded
                   ? "No participants"
-                  : "Be the first to join"
+                  : isHost
+                    ? "No participants yet"
+                    : "Be the first to join"
                 : attendees + " participants"}
             </span>
           </div>
 
           {/* Action  */}
-          <button
-            className="btn btn-info btn-sm text-white"
-            disabled={isEnded}
-            onClick={handleJoin}
-          >
-            <img src={groupIcon} alt="profile" width={16} />
-            {!isEnded ? "Join" : "Ended"}
-          </button>
+          {!isHost && (
+            <button
+              className="btn btn-info btn-sm text-white"
+              disabled={isEnded || isJoined}
+              onClick={handleJoin}
+            >
+              <img src={groupIcon} alt="profile" width={16} />
+              {!isEnded ? (isJoined ? "Joined" : "Join") : "Ended"}
+            </button>
+          )}
         </section>
       </footer>
     </article>

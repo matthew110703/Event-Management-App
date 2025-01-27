@@ -1,38 +1,77 @@
+import { useState } from "react";
+// Redux
+import { useSelector } from "react-redux";
+import {
+  useGetEventsQuery,
+  useGetUpcomingEventsQuery,
+  useGetMetaDataQuery,
+} from "../store/eventsApiSlice";
+
 // UI components
 import { clearIcon, closeIcon, filterIcon } from "../assets";
-import { Badge, Container, EventCard } from "../components";
+import { Badge, Container, EventCard, Loading } from "../components";
 
-// Constants
+// Constants and Helpers
 import { months } from "../lib/constants";
 
 const Dashboard = () => {
+  // Redux
+  const user = useSelector((state) => state.auth.user);
+
+  // Local state
+  const [filters, setFilters] = useState({
+    name: "",
+    date: "",
+    type: "",
+    category: "",
+    from: "",
+    to: "",
+    userId: user.id || "",
+  });
+
+  // Redux
+  const {
+    data: events,
+    error: eventsError,
+    isLoading,
+  } = useGetEventsQuery({
+    name: filters.name,
+    date: filters.date,
+    type: filters.type,
+    category: filters.category,
+    from: filters.from,
+    to: filters.to,
+    userId: user.id,
+  });
+
+  const { data: upcomingEvents, isLoading: loadingUpcomingEvents } =
+    useGetUpcomingEventsQuery(user.id);
+  const { data: metaData, isLoading: loadingMetaData } = useGetMetaDataQuery();
+
   return (
     <Container>
       {/* Main Content */}
       <section aria-label="upcoming-events" className="space-y- py-2">
         <h2 className="rounded-t-lg p-3 text-2xl font-bold">Upcoming Events</h2>
         <div className="flex gap-x-4 overflow-x-auto rounded-b-lg bg-gray-50 px-2 py-6 shadow-inner">
-          <EventCard
-            name="React Summit 2022"
-            category="tech"
-            description="The largest React conference in the world"
-            host="React Community"
-            date="2022-10-15T09:00:00Z"
-            location="San Francisco, CA"
-            attendees={0}
-            className={`w-[500px]`}
-          />
-
-          <EventCard
-            name="Vue.js Conference"
-            category="tech"
-            description="The official Vue.js conference"
-            host="Vue.js Community"
-            date="2022-11-15T09:00:00Z"
-            location="Amsterdam, Netherlands"
-            attendees={0}
-            className={`w-[500px]`}
-          />
+          {loadingUpcomingEvents ? (
+            <Loading size="52" />
+          ) : (
+            upcomingEvents?.map((events) => (
+              <EventCard
+                key={events._id}
+                name={events.name}
+                category={events.category}
+                description={events.description}
+                host={events.host.name}
+                date={events.date}
+                location={events.location}
+                attendees={events.attendees.length}
+                className={"min-w-[400px]"}
+                href={`/event/${events._id}`}
+              />
+            ))
+          )}
         </div>
       </section>
 
@@ -45,42 +84,52 @@ const Dashboard = () => {
       >
         {/* Categories */}
         <div className="flex w-1/2 flex-wrap gap-2">
-          <Badge text="All" active />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
-          <Badge text="New" />
-          <Badge text="Sports" />
+          <Badge
+            text="All"
+            active={filters.category === ""}
+            onClick={() => setFilters({ ...filters, category: "" })}
+          />
+          {!loadingMetaData &&
+            metaData?.event?.categories.map((category) => (
+              <Badge
+                key={category}
+                text={category}
+                active={filters.category === category}
+                onClick={() => setFilters({ ...filters, category: category })}
+              />
+            ))}
         </div>
 
         <div className="divider divider-horizontal"></div>
 
+        {/* Months */}
         <div className="flex max-w-[30%] flex-wrap gap-2 *:uppercase">
-          {months.map((month) => (
-            <Badge key={month.value} text={month.label} />
+          {months.map((month, idx) => (
+            <Badge
+              key={idx}
+              text={month.label}
+              active={filters.from === month.from && filters.to === month.to}
+              onClick={() =>
+                setFilters({ ...filters, from: month.from, to: month.to })
+              }
+            />
           ))}
         </div>
 
         <div className="divider divider-horizontal"></div>
 
+        {/* Reset Filters */}
         <div className="items-center gap-2 md:flex">
           <img src={filterIcon} alt="filter" width={48} />
-          <button className={`btn btn-info btn-sm text-white`}>Reset</button>
+          <button
+            className={`btn btn-info btn-sm text-white`}
+            onClick={() =>
+              setFilters({ ...filters, category: "", from: "", to: "" })
+            }
+            disabled={filters.category === "" && !filters.from && !filters.to}
+          >
+            Reset
+          </button>
         </div>
       </section>
 
@@ -101,8 +150,13 @@ const Dashboard = () => {
             type="text"
             className="grow"
             placeholder="Search"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
           />
-          <button>
+          <button
+            onClick={() => setFilters({ ...filters, name: "" })}
+            hidden={!filters.name}
+          >
             <img src={clearIcon} alt="clear" width={16} />
           </button>
           <svg
@@ -132,11 +186,15 @@ const Dashboard = () => {
               name="date"
               id="date"
               className="grow"
-              defaultValue={"2025-01-01"}
+              value={filters.date}
+              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
             />
             <span className="hidden md:block">Date</span>
           </label>
-          <button>
+          <button
+            onClick={() => setFilters({ ...filters, date: "" })}
+            hidden={!filters.date}
+          >
             <img src={closeIcon} alt="clear" width={20} />
           </button>
         </div>
@@ -146,82 +204,29 @@ const Dashboard = () => {
       <section aria-label="search-results" className="space-y-2 py-2">
         {/* Grid */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <EventCard
-            name="React Summit 2022"
-            category="tech"
-            description="The largest React conference in the world"
-            host="React Community"
-            date="2022-10-15T09:00:00Z"
-            location="San Francisco, CA"
-            attendees={0}
-          />
-
-          <EventCard
-            name="Vue.js Conference"
-            category="tech"
-            description="The official Vue.js conference"
-            host="Vue.js Community"
-            date="2022-11-15T09:00:00Z"
-            location="Amsterdam, Netherlands"
-            attendees={0}
-          />
-          <EventCard
-            name="React Summit 2022"
-            category="tech"
-            description="The largest React conference in the world"
-            host="React Community"
-            date="2022-10-15T09:00:00Z"
-            location="San Francisco, CA"
-            attendees={0}
-          />
-
-          <EventCard
-            name="Vue.js Conference"
-            category="tech"
-            description="The official Vue.js conference"
-            host="Vue.js Community"
-            date="2022-11-15T09:00:00Z"
-            location="Amsterdam, Netherlands"
-            attendees={0}
-          />
-          <EventCard
-            name="React Summit 2022"
-            category="tech"
-            description="The largest React conference in the world"
-            host="React Community"
-            date="2022-10-15T09:00:00Z"
-            location="San Francisco, CA"
-            attendees={0}
-          />
-
-          <EventCard
-            name="Vue.js Conference"
-            category="tech"
-            description="The official Vue.js conference"
-            host="Vue.js Community"
-            date="2022-11-15T09:00:00Z"
-            location="Amsterdam, Netherlands"
-            attendees={0}
-          />
-          <EventCard
-            name="React Summit 2022"
-            category="tech"
-            description="The largest React conference in the world"
-            host="React Community"
-            date="2022-10-15T09:00:00Z"
-            location="San Francisco, CA"
-            attendees={0}
-          />
-
-          <EventCard
-            name="Vue.js Conference"
-            category="tech"
-            description="The official Vue.js conference"
-            host="Vue.js Community"
-            date="2022-11-15T09:00:00Z"
-            location="Amsterdam, Netherlands"
-            attendees={0}
-          />
+          {isLoading ? (
+            <Loading size="52" />
+          ) : eventsError ? (
+            <p>Error: {eventsError}</p>
+          ) : events.length === 0 ? (
+            <div className="flex items-center justify-center">
+              <p>No events found.</p>
+            </div>
+          ) : (
+            events.map((event) => (
+              <EventCard
+                key={event._id}
+                name={event.name}
+                category={event.category}
+                description={event.description}
+                host={event.host.name}
+                date={event.date}
+                location={event.location}
+                attendees={event.attendees.length}
+                href={`/event/${event._id}`}
+              />
+            ))
+          )}
         </div>
       </section>
     </Container>

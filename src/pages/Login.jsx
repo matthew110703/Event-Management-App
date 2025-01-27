@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Redux
 import { useDispatch } from "react-redux";
@@ -25,6 +25,13 @@ const Login = () => {
   // Redux
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,6 +50,9 @@ const Login = () => {
       dispatch(setUser(user));
 
       dispatch(showAlert({ message: "Login successful", type: "success" }));
+
+      // Store token in local storage
+      localStorage.setItem("token", user.token);
 
       // Redirect to Dashboard
       navigate("/dashboard");

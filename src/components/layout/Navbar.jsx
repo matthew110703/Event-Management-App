@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // UI
 import { logo, menuIcon } from "../../assets";
@@ -7,12 +7,35 @@ import NavLink from "../ui/NavLink";
 // Constants
 import { navLinks } from "../../lib/constants";
 
+// Redux
+import { useSelector, useDispatch } from "react-redux";
+import { showAlert } from "../../store/alertSlice";
+import { removeUser } from "../../store/authSlice";
+
 const Navbar = () => {
+  const path = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isGuest } = useSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    dispatch(removeUser());
+    dispatch(
+      showAlert({
+        message: "Logged out successfully",
+        type: "error",
+      }),
+    );
+
+    navigate("/");
+  };
+
   return (
     <header className="navbar rounded-md shadow-lg">
       <div className="navbar-start">
         <Link
-          to="/"
+          to="/dashboard"
           className="flex items-center gap-2 text-xl font-bold text-info"
         >
           <img src={logo} alt="logo" width={32} />
@@ -27,13 +50,15 @@ const Navbar = () => {
             icon={link.icon}
             title={link.label}
             href={link.href}
+            className={`${path.pathname === link.href ? "text-info" : ""} ${isGuest && link.label === "My Events" ? "hidden" : ""}`}
           />
         ))}
         <button
           type="button"
           className="navbar-item btn btn-info btn-sm text-white"
+          onClick={isGuest ? () => navigate("/") : handleLogout}
         >
-          Logout
+          {isGuest ? "Login" : "Logout"}
         </button>
       </div>
 
@@ -59,12 +84,12 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <Link
-                to="/login"
+              <button
                 className="navbar-item btn btn-info btn-sm mx-auto w-full text-white"
+                onClick={isGuest ? () => navigate("/") : handleLogout}
               >
-                Logout
-              </Link>
+                {isGuest ? "Login" : "Logout"}
+              </button>
             </li>
           </ul>
         </div>

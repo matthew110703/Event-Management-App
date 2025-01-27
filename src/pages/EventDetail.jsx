@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import moment from "moment";
 // UI
-import { Container } from "../components";
+import { Container, EventForm, Modal, Loading } from "../components";
 import {
   editIcon,
   shareIcon,
@@ -10,16 +11,67 @@ import {
   geoIcon,
   usersIcon,
   groupIcon,
-  sendIcon,
 } from "../assets";
+
+// Redux
+import { useSelector, useDispatch } from "react-redux";
+import { showAlert } from "../store/alertSlice";
+import {
+  useGetEventQuery,
+  useJoinEventMutation,
+} from "../store/eventsApiSlice";
 
 const EventDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  const attendees = 0;
+  const [showModal, setShowModal] = useState(false);
   const isEnded = false;
+
+  // Redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const { isGuest } = useSelector((state) => state.auth);
+  const { data: event, error, isLoading } = useGetEventQuery(id);
+  const [joinEvent, { isLoading: joining, error: joinError }] =
+    useJoinEventMutation();
+
+  if (isLoading) return <Loading size={"52"} />;
+
+  if (error) return <p>Error: {error.message}</p>;
+
+  const handleJoinEvent = async (e) => {
+    e.preventDefault();
+    if (isGuest) {
+      navigate("/");
+      dispatch(
+        showAlert({ message: "Please login to join event", type: "info" }),
+      );
+      return;
+    }
+
+    try {
+      const { success } = await joinEvent(id).unwrap();
+      if (success) {
+        dispatch(
+          showAlert({ message: "Event joined successfully", type: "success" }),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(showAlert({ message: joinError?.data?.error, type: "error" }));
+    }
+  };
+
   return (
     <Container>
+      {/* Event Form Modal */}
+      {showModal && (
+        <Modal>
+          <EventForm edit onClose={() => setShowModal(!showModal)} />
+        </Modal>
+      )}
+
       <button className="btn btn-ghost btn-sm" onClick={() => history.back()}>
         <span aria-hidden="true">&larr;</span> Back
       </button>
@@ -32,37 +84,39 @@ const EventDetail = () => {
           <header className="flex items-center justify-between">
             <div className="flex items-center">
               <h2 className="text-xl font-semibold md:text-2xl lg:text-3xl">
-                Event Name
+                {event.name}
               </h2>
               <div className="divider divider-horizontal"></div>
               <p className="rounded-full bg-info bg-opacity-20 px-2 py-1 text-xs font-semibold uppercase text-info">
-                Category
+                {event.category}
               </p>
             </div>
             {/* Actions */}
             <aside className="flex items-center gap-x-2">
-              <button className="btn btn-circle btn-ghost btn-sm md:btn-md">
+              <button
+                className="btn btn-circle btn-ghost btn-sm md:btn-md"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Link copied to clipboard");
+                }}
+              >
                 <img src={shareIcon} alt="share" className="w-6 lg:w-8" />
               </button>
-              <button className="btn btn-circle btn-ghost btn-sm md:btn-md">
-                <img src={editIcon} alt="edit" className="w-5 lg:w-6" />
-              </button>
+
+              {user.id === event.host._id && !isEnded && (
+                <button
+                  className="btn btn-circle btn-ghost btn-sm md:btn-md"
+                  onClick={() => setShowModal(!showModal)}
+                >
+                  <img src={editIcon} alt="edit" className="w-5 lg:w-6" />
+                </button>
+              )}
             </aside>
           </header>
 
           <main className="rounded-lg bg-gray-200 p-2">
             <p className="text-xs font-normal md:text-base">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odio et,
-              totam saepe molestiae dolores aut commodi ab? Voluptas tempore
-              praesentium dolorum, unde, placeat quas nemo distinctio deleniti
-              amet quod ipsam? Lorem, ipsum dolor sit amet consectetur
-              adipisicing elit. Odio et, totam saepe molestiae dolores aut
-              commodi ab? Voluptas tempore praesentium dolorum, unde, placeat
-              quas nemo distinctio deleniti amet quod ipsam? Lorem, ipsum dolor
-              sit amet consectetur adipisicing elit. Odio et, totam saepe
-              molestiae dolores aut commodi ab? Voluptas tempore praesentium
-              dolorum, unde, placeat quas nemo distinctio deleniti amet quod
-              ipsam?
+              {event.description}
             </p>
           </main>
 
@@ -72,18 +126,22 @@ const EventDetail = () => {
               {/* Host Name  */}
               <div className="flex items-center gap-2 rounded-full px-2 md:py-1">
                 <img src={adminIcon} alt="host" width={18} />
-                <span className="font-semibold text-black">Host</span>
+                <span className="font-semibold text-black">
+                  {event?.host?.name}
+                </span>
               </div>
               {/* Event Date  */}
               <div className="flex items-center gap-2 rounded-full px-2 md:py-1">
                 <img src={dateIcon} alt="datetime" width={18} />
                 <time className="font-semibold text-black">
-                  {moment("2025-01-25").format("MMMM Do YYYY, h:mm a")}
+                  {moment(event.date).format("MMMM Do YYYY, h:mm a")}
                 </time>
               </div>
               <div className="flex items-center gap-2 rounded-full px-2 md:py-1">
                 <img src={geoIcon} alt="location" width={18} />
-                <span className="font-semibold text-black">Location</span>
+                <span className="font-semibold text-black">
+                  {event.location}
+                </span>
               </div>
             </section>
 
@@ -92,73 +150,38 @@ const EventDetail = () => {
               <div className="flex items-center gap-2">
                 <img src={usersIcon} alt="profile" width={16} />
                 <span className="text-xs font-semibold text-gray-500">
-                  {attendees <= 0
+                  {event?.attendees.length <= 0
                     ? isEnded
                       ? "No participants"
-                      : "Be the first to join"
-                    : attendees + " participants"}
+                      : event?.host._id === user.id
+                        ? "No participants yet"
+                        : "Be the first to join"
+                    : event?.attendees.length + " participants"}
                 </span>
               </div>
 
               {/* Action  */}
-              <button
-                className="btn- btn btn-info text-white"
-                disabled={isEnded}
-                onClick={() => {}}
-              >
-                <img src={groupIcon} alt="profile" width={16} />
-                {!isEnded ? "Join" : "Ended"}
-              </button>
+              {user.id !== event.host._id && (
+                <form onSubmit={handleJoinEvent}>
+                  <button
+                    className="btn btn-info text-white"
+                    disabled={
+                      isEnded || event.attendees.includes(user.id) || joining
+                    }
+                  >
+                    <img src={groupIcon} alt="profile" width={16} />
+                    {joining && (
+                      <span className="loading loading-dots loading-sm"></span>
+                    )}
+                    {!isEnded
+                      ? event.attendees.includes(user.id)
+                        ? "Joined"
+                        : "Join"
+                      : "Ended"}
+                  </button>
+                </form>
+              )}
             </section>
-          </footer>
-        </section>
-
-        {/* Live Chat */}
-        <section className="mt-2 space-y-4 rounded-lg border border-gray-200 p-3 md:basis-1/2 lg:basis-1/3">
-          <header className="flex items-center justify-between">
-            <h3 className="font- text-lg md:text-xl">Live Chat (Public)</h3>
-            <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-              2
-              <img src={usersIcon} alt="users" width={16} />
-              <span className="text-success">• Online</span>
-            </div>
-          </header>
-          <div className="divider divider-vertical"></div>
-
-          {/* Chat interface */}
-          <main className="flex max-h-[600px] min-h-[420px] flex-col-reverse gap-y-1.5 overflow-y-auto rounded-lg bg-gray-200 p-2">
-            {/* Chat Bubble  */}
-            <div className="max-w-[80%] space-y-0.5 self-end rounded-3xl bg-white px-4 py-1 leading-3">
-              <span className="text-xs text-gray-400">Username</span>
-              <p className="text-sm">Hello, how are you?</p>
-            </div>
-            {/* Chat Bubble  */}
-            <div className="max-w-[80%] space-y-0.5 self-end rounded-3xl bg-white px-4 py-1 leading-3">
-              <span className="text-xs text-gray-400">Username</span>
-              <p className="text-sm">Hello, how are you?</p>
-            </div>
-            {/* Chat Bubble  */}
-            <div className="max-w-[80%] space-y-0.5 self-start rounded-3xl bg-white px-4 py-1 leading-3">
-              <span className="text-xs text-gray-400">Username</span>
-              <p className="text-sm">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut
-                assumenda quam ullam. Sunt fugiat officia hic libero quia et
-                quas quibusdam quam quidem nulla? Delectus consectetur deserunt
-                sequi culpa animi?
-              </p>
-            </div>
-          </main>
-          <footer>
-            <form className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Type your message here..."
-                className="input input-bordered w-full"
-              />
-              <button className="btn btn-circle btn-ghost btn-sm text-white md:btn-md">
-                <img src={sendIcon} alt="send" className="w-6 md:w-8" />
-              </button>
-            </form>
           </footer>
         </section>
       </div>
