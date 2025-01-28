@@ -1,8 +1,9 @@
+/* eslint-disable no-constant-binary-expression */
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const login = async (email, password) => {
   try {
-    const loginUser = await fetch(API_URL || "api/auth/login", {
+    const loginUser = await fetch(`${API_URL}/auth/login` || "api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,7 +35,7 @@ export const login = async (email, password) => {
 
 export const verifyUser = async (token) => {
   try {
-    const user = await fetch(API_URL || "api/user", {
+    const user = await fetch(`${API_URL}/user` || "api/user", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

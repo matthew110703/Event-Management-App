@@ -41,7 +41,7 @@ const Login = () => {
       const { error, ...user } = await login(email, password);
 
       if (error) {
-        dispatch(showAlert({ message: error, type: "error" }));
+        dispatch(showAlert({ message: error.toString(), type: "error" }));
         setLoading(false);
         return;
       }
