@@ -1,10 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const headers = {
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-  "Content-Type": "application/json",
-};
-
 export const eventsApi = createApi({
   reducerPath: "eventsApi",
   baseQuery: fetchBaseQuery({
@@ -40,14 +35,20 @@ export const eventsApi = createApi({
     getUserEvents: builder.query({
       query: () => ({
         url: "/events/user",
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       }),
       providesTags: ["User"],
     }),
     getEventsJoined: builder.query({
       query: () => ({
         url: "/events/joined",
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       }),
       providesTags: ["Events"],
     }),
@@ -55,7 +56,10 @@ export const eventsApi = createApi({
       query: (body) => ({
         url: "/events",
         method: "POST",
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(body),
       }),
 
@@ -64,7 +68,10 @@ export const eventsApi = createApi({
     getEvent: builder.query({
       query: (id) => ({
         url: `/events/${id}`,
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       }),
       providesTags: ["Events"],
     }),
@@ -72,7 +79,10 @@ export const eventsApi = createApi({
       query: ({ id, body }) => ({
         url: `/events/${id}`,
         method: "PUT",
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(body),
       }),
       invalidatesTags: ["Events", "User"],
@@ -81,7 +91,10 @@ export const eventsApi = createApi({
       query: (id) => ({
         url: `/user/join`,
         method: "POST",
-        headers: headers,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ eventId: id }),
       }),
       invalidatesTags: ["Events", "User"],

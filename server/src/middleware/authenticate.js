@@ -20,7 +20,10 @@ const authenticate = async (req, res, next) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
-      throw { statusCode: 401, message: "Unauthorized. Invalid token." };
+      throw {
+        statusCode: 401,
+        message: "Unauthorized. Invalid token. Unexpected error.",
+      };
     }
 
     if (decoded) {
