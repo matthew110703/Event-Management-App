@@ -14,7 +14,7 @@ export const login = async (email, password) => {
     const { success, token, error } = await loginUser.json();
 
     if (success) {
-      const getUser = await fetch("api/user", {
+      const getUser = await fetch(`${API_URL}/user` || "api/user", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

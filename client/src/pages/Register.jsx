@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -53,13 +54,16 @@ const Register = () => {
     // API Call
     try {
       setLoading(true);
-      const res = await fetch("api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register` || "api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
         },
-        body: JSON.stringify(form),
-      });
+      );
 
       const { success, error } = await res.json();
 
